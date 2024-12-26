@@ -32,7 +32,7 @@ export function Dropdown({ children, options, onOptionSelect }: { children: Reac
 
 	return (
 		<div className="relative" ref={dropdownRef}>
-			<button className="py-3 px-5 rounded-full flex items-center justify-between font-bold ring-1 ring-gray-200 w-full xl:min-w-[350px]" onClick={toggleDropdown}>
+			<button className="py-3 px-5 rounded-full flex items-center justify-between font-bold ring-1 ring-gray-200 w-full xl:min-w-[350px] shadow-lg drop-shadow" onClick={toggleDropdown}>
 				{currentOption ? currentOption : children}
 				<FontAwesomeIcon icon={faAngleDown} className={`transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
 			</button>
