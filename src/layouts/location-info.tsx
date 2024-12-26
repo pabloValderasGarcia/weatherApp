@@ -2,21 +2,21 @@ import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Dropdown } from "../components/dropdown";
 import { useWeather } from "../hooks/use-weather";
-import { countryCodes } from '../utils/countries';
-import { useCountry } from "../hooks/use-country";
+import { locations } from '../utils/locations';
 import { useWeatherConditionImg } from "../hooks/use-weather-condition-img";
 import { useWeatherGradient } from "../hooks/use-weather-gradients";
 import { useClickOutside } from "../hooks/use-click-outside";
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
 
+// Get necessary data
 interface WeatherData {
 	current: {
-		is_day: boolean,
 		condition: {
 			code: number,
 			icon: string,
 			text: string,
 		},
+		is_day: boolean,
 		temp_c: number,
 	},
 	location: {
@@ -24,38 +24,24 @@ interface WeatherData {
 	},
 }
 
-export default function CountryInfo() {
-	// Country
-	const country = useCountry() || "Spain";
-	const [selectedCountry, setSelectedCountry] = useState(country || "Spain");
+export default function LocationInfo() {
+	const [selectedLocation, setSelectedLocation] = useState<string | null>();
 	// Weather
-	const weatherQuery = useWeather(selectedCountry);
+	const weatherQuery = useWeather(selectedLocation ?? "");
 	const [weatherData, setWeatherData] = useState<WeatherData>();
-	const [fontSize, setFontSize] = useState('3xl');
 	// Tooltip
 	const [showTooltip, setShowTooltip] = useState(false);
 	const tooltipRef = useRef<HTMLDivElement>(null);
 
 	// Set query
 	useEffect(() => {
-		if (weatherQuery.isSuccess) setWeatherData(weatherQuery.data.data);
+		if (weatherQuery.isSuccess) setWeatherData(weatherQuery.data?.data);
 	}, [weatherQuery.isSuccess, weatherQuery.data]);
 
-	// Trigger refetch when the selected country changes
+	// Trigger refetch when the selected location changes
 	useEffect(() => {
 		weatherQuery.refetch();
-	}, [selectedCountry]);
-
-	// Change font size depending on how long the condition is
-	useEffect(() => {
-		if (weatherData) {
-			const length = weatherData.current.condition.text.length;
-			if (length < 10) setFontSize('text-3xl');
-			else if (length < 20) setFontSize('text-2xl');
-			else if (length < 30) setFontSize('text-xl');
-			else setFontSize('text-lg');
-		}
-	}, [weatherData]);
+	}, [selectedLocation]);
 
 	// Close tooltip clicking outside
 	useClickOutside(tooltipRef, () => {
@@ -65,26 +51,26 @@ export default function CountryInfo() {
 	return (
 		<div className='flex-1 flex flex-col w-full max-w-xl mx-auto'>
 			<Dropdown
-				options={Object.values(countryCodes).reduce<{ [key: string]: string }>((acc, countryName) => {
-					acc[countryName] = countryName;
+				options={Object.values(locations).reduce<{ [key: string]: string }>((acc, locationName) => {
+					acc[locationName] = locationName;
 					return acc;
-				}, {})} onOptionSelect={setSelectedCountry}>
-				{country}
+				}, {})} onOptionSelect={setSelectedLocation}>
+				{"Select location"}
 			</Dropdown>
 			{weatherData && (
 				<div
 					className={`transition-bg ${useWeatherGradient(weatherData.current.condition.code, weatherData.current.is_day)} 
-					p-4 text-white min-h-[28rem] flex flex-col justify-center items-center text-center mt-2 rounded-3xl relative`}
+					p-4 text-white min-h-[28rem] flex flex-col justify-center items-center text-center mt-3 rounded-3xl relative`}
 				>
 					{weatherQuery.isPending && <p className='font-bold text-2xl drop-shadow-[0_1px_1.5px_rgba(0,0,0,1)] tracking-wide'>Loading...</p>}
 					{weatherData && !weatherQuery.isPending && (
 						<>
 							<img className="w-16 mb-5" src={useWeatherConditionImg({ code: weatherData.current.condition.code, isDay: weatherData.current.is_day })} />
-							<p className='drop-shadow-[0_1px_1.5px_rgba(0,0,0,1)]'>{weatherData.location.name}</p>
-							<p className={`font-bold ${fontSize} drop-shadow-[0_1px_1.5px_rgba(0,0,0,1)] tracking-wide`}>
+							<p className='font-bold drop-shadow-[0_0_1px_rgba(0,0,0,1)]'>{weatherData.location.name}</p>
+							<p className={`font-bold ${weatherData.current.condition.text.length < 10 ? 'text-3xl' : weatherData.current.condition.text.length < 20 ? 'text-2xl' : weatherData.current.condition.text.length < 30 ? 'text-xl' : 'text-lg'} drop-shadow-[0_0_1px_rgba(0,0,0,1)] tracking-wide`}>
 								{weatherData.current.condition.text.toUpperCase()}
 							</p>
-							<p className={`font-bold text-3xl drop-shadow-[0_1px_1.5px_rgba(0,0,0,1)] mt-5 bg-clip-text text-transparent ${weatherData.current.temp_c <= 0 ? 'bg-gradient-to-r from-blue-500 to-cyan-500' : weatherData.current.temp_c <= 15 ? 'bg-gradient-to-r from-cyan-500 to-yellow-500' : weatherData.current.temp_c <= 25 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' : 'bg-gradient-to-r from-orange-500 to-red-500'}`}>
+							<p className={`font-bold text-3xl drop-shadow-[0_0_1px_rgba(0,0,0,1)] mt-5 bg-clip-text text-transparent ${weatherData.current.temp_c <= 0 ? 'bg-gradient-to-r from-blue-500 to-cyan-500' : weatherData.current.temp_c <= 15 ? 'bg-gradient-to-r from-cyan-500 to-yellow-500' : weatherData.current.temp_c <= 25 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' : 'bg-gradient-to-r from-orange-500 to-red-500'}`}>
 								{weatherData.current.temp_c}°
 							</p>
 							<div className="absolute top-5 right-5" ref={tooltipRef}>

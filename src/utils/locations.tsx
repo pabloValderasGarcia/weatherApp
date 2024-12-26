@@ -1,4 +1,4 @@
-export const countryCodes: Record<string, string> = {
+export const locations: Record<string, string> = {
 	"AF": "Afghanistan", "AL": "Albania", "DZ": "Algeria", "AD": "Andorra", "AO": "Angola",
 	"AG": "Antigua and Barbuda", "AR": "Argentina", "AM": "Armenia", "AU": "Australia", "AT": "Austria",
 	"AZ": "Azerbaijan", "BS": "Bahamas", "BH": "Bahrain", "BD": "Bangladesh", "BB": "Barbados",
@@ -32,4 +32,4 @@ export const countryCodes: Record<string, string> = {
 	"VU": "Vanuatu", "VA": "Vatican City", "VE": "Venezuela", "VN": "Vietnam", "YE": "Yemen", "ZM": "Zambia", "ZW": "Zimbabwe"
 };
 
-export const getCountryByCode = (code: string) => countryCodes[code.toUpperCase()] || "Unknown Country";  
+export const getLocation = (code: string) => locations[code.toUpperCase()] || "Unknown location...";  
